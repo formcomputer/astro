@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "masterSecret": "6655afe2066a54fedb40918287ee182a17a06a7ba064ba03b6bbae8b9d47ae93e31a89821e82e206c14a2ea81838bc729de389fbcc959dff66f49aff7750492c",
+  "jwtSecret": "11c754857861ad8e180319e62609052b6feab08abbee9bc4a6939a81ae95440ec673698d7eba578999ddc96941b76998f613af866b669176ea9c6df131b03af8",
+  "turnSecret": "9297f065e7a3a604fb0936aecdbd9758455e39f8ddd1667d684d7cba7286ff66",
+  "tagEncryptionKey": "94e57401b31434398e453129176d1ede51c1871d3e3d32330ac66308f78d4659",
+  "adminPassword": "v0dQjkHWB5yIE3aY",
+  "ports": {
+    "http": 2000,
+    "peerjs": 2001,
+    "turn": 3478,
+    "turnTLS": 5349
+  },
+  "mysql": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "user": "root",
+    "password": "",
+    "database": "form_services"
+  },
+  "network": {
+    "localIP": "192.168.1.207",
+    "publicIP": "96.228.35.4",
+    "lastSeen": "2026-05-03T21:18:15.018Z"
+  },
+  "projects": {},
+  "createdAt": "2026-04-21T02:21:48.167Z"
+}

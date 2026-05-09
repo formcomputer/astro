@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORM SERVICES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────────── */
+  :root {
+    --bg:           #000000;
+    --bg-2:         #0a0a0a;
+    --bg-3:         #111111;
+    --bg-4:         #1a1a1a;
+    --border:       #222222;
+    --border-hi:    #333333;
+
+    --text-display: rgba(255,255,255,1.00);
+    --text-primary: rgba(255,255,255,0.90);
+    --text-secondary: rgba(255,255,255,0.55);
+    --text-disabled: rgba(255,255,255,0.30);
+
+    --red:    #D71921;
+    --green:  #1DB954;
+    --amber:  #F59E0B;
+    --blue:   #3B82F6;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono:    'Space Mono', monospace;
+
+    --r-card: 8px;
+    --r-btn:  4px;
+  }
+
+  /* ── RESET ──────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* ── AUTH SCREEN ────────────────────────────────────────────── */
+  #auth-screen {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    z-index: 999;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+  #auth-screen.fade-out { opacity: 0; pointer-events: none; }
+
+  .auth-box {
+    width: 340px;
+  }
+  .auth-wordmark {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--text-disabled);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+  .auth-wordmark span {
+    color: var(--text-display);
+    font-size: 28px;
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .auth-field {
+    margin-bottom: 12px;
+  }
+  .auth-field label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .auth-field input {
+    width: 100%;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: var(--r-btn);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .auth-field input:focus { border-color: var(--border-hi); }
+  .auth-submit {
+    width: 100%;
+    margin-top: 24px;
+    background: var(--text-display);
+    color: #000;
+    border: none;
+    border-radius: var(--r-btn);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 12px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .auth-submit:hover { opacity: 0.85; }
+  .auth-error {
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 0.05em;
+    min-height: 16px;
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────────────────── */
+  #app {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: 100vh;
+    height: 100vh;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  #app.visible { opacity: 1; }
+
+  /* ── SIDEBAR ────────────────────────────────────────────────── */
+  .sidebar {
+    background: var(--bg-2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0;
+    overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 0 24px 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .logo-word {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--text-display);
+    text-transform: uppercase;
+  }
+  .logo-sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-disabled);
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .nav-section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+  }
+  .nav-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-disabled);
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 8px;
+    border-radius: var(--r-btn);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    user-select: none;
+  }
+  .nav-item:hover { background: var(--bg-3); color: var(--text-primary); }
+  .nav-item.active { background: var(--bg-4); color: var(--text-display); }
+  .nav-item.active .nav-dot { background: var(--text-display); }
+  .nav-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--border-hi);
+    flex-shrink: 0;
+    transition: background 0.12s;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 24px 0;
+    border-top: 1px solid var(--border);
+  }
+  .sidebar-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-disabled);
+    letter-spacing: 0.08em;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── MAIN ────────────────────────────────────────────────────── */
+  .main {
+    overflow-y: auto;
+    padding: 40px 48px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── PAGE HEADER ─────────────────────────────────────────────── */
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+  .page-title {
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--text-display);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .page-subtitle {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-disabled);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  /* ── STAT GRID ───────────────────────────────────────────────── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+  .stat-cell {
+    background: var(--bg-2);
+    padding: 28px 24px;
+  }
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text-display);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .stat-value.online { color: var(--green); }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-disabled);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ── CARDS ────────────────────────────────────────────────────── */
+  .card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+  .card-body { padding: 0; }
+
+  /* ── PROJECT TABLE ────────────────────────────────────────────── */
+  .proj-table { width: 100%; border-collapse: collapse; }
+  .proj-table th {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-disabled);
+    text-align: left;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .proj-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .proj-table tr:last-child td { border-bottom: none; }
+  .proj-table tr { transition: background 0.1s; }
+  .proj-table tr:hover td { background: var(--bg-3); }
+
+  .proj-name {
+    font-weight: 500;
+    color: var(--text-display);
+    font-size: 14px;
+  }
+  .proj-id {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-disabled);
+    margin-top: 2px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .badge-approved { color: var(--green); border-color: rgba(29,185,84,0.3); background: rgba(29,185,84,0.08); }
+  .badge-pending  { color: var(--amber); border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.08); }
+  .badge-revoked  { color: var(--red);   border-color: rgba(215,25,33,0.3);  background: rgba(215,25,33,0.08); }
+  .badge::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+
+  .peers-count {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .peers-count.live { color: var(--green); }
+
+  /* ── ACTIONS ──────────────────────────────────────────────────── */
+  .actions { display: flex; gap: 6px; }
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: var(--r-btn);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--border-hi); color: var(--text-primary); background: var(--bg-3); }
+  .btn-approve { color: var(--green); border-color: rgba(29,185,84,0.3); }
+  .btn-approve:hover { background: rgba(29,185,84,0.08); border-color: var(--green); }
+  .btn-revoke { color: var(--red); border-color: rgba(215,25,33,0.3); }
+  .btn-revoke:hover { background: rgba(215,25,33,0.08); border-color: var(--red); }
+  .btn-primary {
+    background: var(--text-display);
+    color: #000;
+    border-color: var(--text-display);
+    font-weight: 700;
+  }
+  .btn-primary:hover { opacity: 0.85; background: var(--text-display); }
+
+  /* ── NEW PROJECT FORM ──────────────────────────────────────────── */
+  .new-proj-form {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-field label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-disabled);
+    margin-bottom: 6px;
+  }
+  .form-field input, .form-field textarea {
+    width: 100%;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: var(--r-btn);
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-field input:focus, .form-field textarea:focus { border-color: var(--border-hi); }
+
+  /* ── MODULE PANEL ─────────────────────────────────────────────── */
+  .module-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .module-panel.open { display: flex; }
+  .module-box {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    width: 640px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .module-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .module-body { padding: 24px; overflow-y: auto; flex: 1; }
+  .module-code {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: var(--r-btn);
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 300px;
+    overflow-y: auto;
+    line-height: 1.7;
+  }
+  .module-instructions {
+    margin-top: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-disabled);
+    line-height: 1.8;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── NETWORK PAGE ─────────────────────────────────────────────── */
+  .network-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .network-item {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    padding: 24px;
+  }
+  .network-item-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-disabled);
+    margin-bottom: 12px;
+  }
+  .network-item-value {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    color: var(--text-display);
+    letter-spacing: 0.04em;
+  }
+  .network-item-value.warn { color: var(--amber); }
+
+  /* ── LOG ──────────────────────────────────────────────────────── */
+  .log-entry {
+    display: flex;
+    gap: 16px;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-ts { color: var(--text-disabled); flex-shrink: 0; width: 160px; }
+  .log-msg { color: var(--text-secondary); flex: 1; }
+  .log-entry.event-join .log-msg { color: var(--green); }
+  .log-entry.event-error .log-msg { color: var(--red); }
+
+  /* ── UPTIME DISPLAY ───────────────────────────────────────────── */
+  .uptime-display {
+    font-family: var(--font-mono);
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--text-display);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  /* ── IP CHANGE ALERT ──────────────────────────────────────────── */
+  .ip-alert {
+    display: none;
+    background: rgba(215,25,33,0.08);
+    border: 1px solid rgba(215,25,33,0.3);
+    border-radius: var(--r-card);
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .ip-alert.hidden { display: none; }
+
+  /* ── SCROLLBAR ────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+  /* ── ANIMATIONS ───────────────────────────────────────────────── */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in { animation: fade-in 0.3s ease forwards; }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-wordmark">
+      <span>FORM</span>
+      Services · by Form Computer
+    </div>
+    <div class="auth-field">
+      <label>Username</label>
+      <input type="text" id="auth-username" value="admin" autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="auth-password" id="auth-password" autocomplete="current-password">
+    </div>
+    <button class="auth-submit" onclick="doLogin()">AUTHENTICATE</button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-word">FORM</div>
+      <div class="logo-sub">Services v1.0</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="nav('dashboard')">
+        <span class="nav-dot"></span> Dashboard
+      </div>
+      <div class="nav-item" onclick="nav('network')">
+        <span class="nav-dot"></span> Network
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Projects</div>
+      <div class="nav-item" onclick="nav('projects')">
+        <span class="nav-dot"></span> All Projects
+      </div>
+      <div class="nav-item" onclick="nav('peers')">
+        <span class="nav-dot"></span> Live Peers
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">System</div>
+      <div class="nav-item" onclick="nav('logs')">
+        <span class="nav-dot"></span> Event Log
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">RUNNING</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- IP ALERT -->
+    <div class="ip-alert hidden" id="ip-alert">
+      <span>⚠ PUBLIC IP HAS CHANGED — distributed modules need to be regenerated</span>
+      <button class="btn btn-revoke" onclick="refreshIP()">REFRESH IP</button>
+    </div>
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle">Form Computer · Local Infrastructure</div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)" id="dashboard-time"></div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-cell">
+          <div class="stat-value" id="stat-projects">—</div>
+          <div class="stat-label">Projects</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-value" id="stat-approved">—</div>
+          <div class="stat-label">Approved</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-value online" id="stat-peers">—</div>
+          <div class="stat-label">Live Peers</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-value" id="stat-docs">—</div>
+          <div class="stat-label">Stored Docs</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">System Uptime</span>
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-disabled)" id="uptime-since"></span>
+        </div>
+        <div class="card-body" style="padding:28px 24px">
+          <div class="uptime-display" id="uptime-display">00:00:00</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-disabled);margin-top:6px;letter-spacing:0.1em">HH · MM · SS</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Recent Events</span>
+        </div>
+        <div class="card-body" id="recent-events">
+          <div style="padding:24px;font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)">[LOADING...]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS PAGE -->
+    <div class="page" id="page-projects">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Projects</div>
+          <div class="page-subtitle">Manage connected applications</div>
+        </div>
+        <button class="btn btn-primary" onclick="toggleNewForm()">+ NEW PROJECT</button>
+      </div>
+
+      <div class="card">
+        <div class="new-proj-form" id="new-proj-form" style="display:none">
+          <div class="form-field">
+            <label>Project Name</label>
+            <input type="text" id="new-name" placeholder="e.g. Form Press">
+          </div>
+          <div class="form-field">
+            <label>Description</label>
+            <input type="text" id="new-desc" placeholder="Optional">
+          </div>
+          <button class="btn btn-primary" onclick="createProject()" style="height:38px">CREATE</button>
+        </div>
+
+        <div class="card-header" style="border-top: none">
+          <span class="card-title">All Projects</span>
+          <button class="btn" onclick="loadProjects()">↻ REFRESH</button>
+        </div>
+        <div class="card-body">
+          <table class="proj-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Live Peers</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="projects-tbody">
+              <tr><td colspan="5" style="padding:24px;font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)">[LOADING...]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NETWORK PAGE -->
+    <div class="page" id="page-network">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Network</div>
+          <div class="page-subtitle">Connectivity &amp; IP management</div>
+        </div>
+        <button class="btn" onclick="refreshIP()">↻ CHECK IP</button>
+      </div>
+
+      <div class="network-grid">
+        <div class="network-item">
+          <div class="network-item-label">Local IP</div>
+          <div class="network-item-value" id="net-local">—</div>
+        </div>
+        <div class="network-item">
+          <div class="network-item-label">Public IP</div>
+          <div class="network-item-value" id="net-public">—</div>
+        </div>
+        <div class="network-item">
+          <div class="network-item-label">HTTP Port</div>
+          <div class="network-item-value" id="net-http">—</div>
+        </div>
+        <div class="network-item">
+          <div class="network-item-label">PeerJS Port</div>
+          <div class="network-item-value" id="net-peer">—</div>
+        </div>
+        <div class="network-item">
+          <div class="network-item-label">TURN Port</div>
+          <div class="network-item-value" id="net-turn">3478</div>
+        </div>
+        <div class="network-item">
+          <div class="network-item-label">Last IP Check</div>
+          <div class="network-item-value" id="net-lastcheck" style="font-size:14px">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Port Forwarding Guide</span>
+        </div>
+        <div class="card-body" style="padding:24px">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);line-height:2.2;letter-spacing:0.04em">
+            Forward these ports on your router to this machine's local IP:<br><br>
+            <span style="color:var(--text-display)">TCP 2000</span> &nbsp;→&nbsp; Form Services API + Dashboard<br>
+            <span style="color:var(--text-display)">TCP 2001</span> &nbsp;→&nbsp; PeerJS signaling server<br>
+            <span style="color:var(--text-display)">TCP/UDP 3478</span> &nbsp;→&nbsp; coTURN STUN/TURN<br>
+            <span style="color:var(--text-display)">TCP 5349</span> &nbsp;→&nbsp; coTURN TLS (for strict firewalls)<br><br>
+            <span style="color:var(--text-disabled)">For school/enterprise firewalls: all traffic routes through port 443 via TURN relay.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PEERS PAGE -->
+    <div class="page" id="page-peers">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Live Peers</div>
+          <div class="page-subtitle">Currently connected clients</div>
+        </div>
+        <button class="btn" onclick="loadPeers()">↻ REFRESH</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Active Connections</span>
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-disabled)">Last 5 min</span>
+        </div>
+        <div class="card-body">
+          <table class="proj-table">
+            <thead>
+              <tr><th>Peer ID</th><th>Project</th><th>IP</th><th>Last Seen</th></tr>
+            </thead>
+            <tbody id="peers-tbody">
+              <tr><td colspan="4" style="padding:24px;font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)">[LOADING...]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGS PAGE -->
+    <div class="page" id="page-logs">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Event Log</div>
+          <div class="page-subtitle">System events, last 24h</div>
+        </div>
+        <button class="btn" onclick="loadLogs()">↻ REFRESH</button>
+      </div>
+      <div class="card">
+        <div class="card-body" id="log-body">
+          <div style="padding:24px;font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)">[LOADING...]</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODULE PANEL -->
+<div class="module-panel" id="module-panel">
+  <div class="module-box">
+    <div class="module-header">
+      <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-secondary)">Project Module</span>
+      <button class="btn" onclick="closeModule()">CLOSE</button>
+    </div>
+    <div class="module-body">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-disabled);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:12px">Drop into any HTML file</div>
+      <div class="module-code" id="module-code">Loading...</div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-primary" onclick="copyModule()">COPY</button>
+        <button class="btn" onclick="downloadModule()">DOWNLOAD .JS</button>
+      </div>
+      <div class="module-instructions">
+        1. Copy the snippet above<br>
+        2. Paste into your HTML file's &lt;head&gt;<br>
+        3. Call <span style="color:var(--text-primary)">Form.connect()</span> to initialize<br>
+        4. Use <span style="color:var(--text-primary)">Form.list()</span>, <span style="color:var(--text-primary)">Form.set()</span>, <span style="color:var(--text-primary)">Form.login()</span> etc.<br>
+        5. Tag is encrypted — safe in public HTML
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = '';
+  let token = null;
+  let uptimeSeconds = 0;
+  let uptimeInterval = null;
+  let currentModuleCode = '';
+  let currentModuleProjectId = '';
+
+  // ── AUTH ──────────────────────────────────────────────────────────
+  async function doLogin() {
+    const u = document.getElementById('auth-username').value;
+    const p = document.getElementById('auth-password').value;
+    document.getElementById('auth-error').textContent = '';
+    try {
+      const r = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+      });
+      const d = await r.json();
+      if (!r.ok) { document.getElementById('auth-error').textContent = d.error || 'Login failed'; return; }
+      token = d.token;
+      document.getElementById('auth-screen').classList.add('fade-out');
+      setTimeout(() => {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app').classList.add('visible');
+        initApp();
+      }, 400);
+    } catch (e) {
+      document.getElementById('auth-error').textContent = 'Cannot reach Form Services';
+    }
+  }
+
+  document.getElementById('auth-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  // ── INIT ───────────────────────────────────────────────────────────
+  async function initApp() {
+    await loadStatus();
+    await loadStats();
+    await loadEvents();
+    startClock();
+    startUptimeTicker();
+    setInterval(loadStats, 10000);
+    setInterval(loadStatus, 30000);
+    checkIPChange();
+  }
+
+  async function apiFetch(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(opts.headers || {}) };
+    const r = await fetch(path, { ...opts, headers });
+    if (!r.ok) { const e = await r.json(); throw new Error(e.error || 'Request failed'); }
+    return r.json();
+  }
+
+  // ── NAV ────────────────────────────────────────────────────────────
+  function nav(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    if (page === 'projects') loadProjects();
+    if (page === 'peers') loadPeers();
+    if (page === 'logs') loadLogs();
+    if (page === 'network') loadNetwork();
+  }
+
+  // ── CLOCK ──────────────────────────────────────────────────────────
+  function startClock() {
+    function tick() {
+      const now = new Date();
+      const ts = now.toLocaleTimeString('en-US', { hour12: false }) + ' · ' +
+                 now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+      document.getElementById('dashboard-time').textContent = ts;
+    }
+    tick(); setInterval(tick, 1000);
+  }
+
+  function startUptimeTicker() {
+    if (uptimeInterval) clearInterval(uptimeInterval);
+    uptimeInterval = setInterval(() => {
+      uptimeSeconds++;
+      const h = Math.floor(uptimeSeconds / 3600).toString().padStart(2, '0');
+      const m = Math.floor((uptimeSeconds % 3600) / 60).toString().padStart(2, '0');
+      const s = (uptimeSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('uptime-display').textContent = `${h}:${m}:${s}`;
+    }, 1000);
+  }
+
+  // ── STATUS ─────────────────────────────────────────────────────────
+  async function loadStatus() {
+    try {
+      const d = await apiFetch('/api/status');
+      uptimeSeconds = Math.floor(d.uptime);
+      const started = new Date(Date.now() - d.uptime * 1000);
+      document.getElementById('uptime-since').textContent =
+        'SINCE ' + started.toLocaleTimeString('en-US', { hour12: false });
+      document.getElementById('net-local').textContent = d.network?.localIP || '—';
+      document.getElementById('net-public').textContent = d.network?.publicIP || '—';
+      document.getElementById('net-http').textContent = d.ports?.http || '2000';
+      document.getElementById('net-peer').textContent = d.ports?.peerjs || '2001';
+    } catch (e) {
+      document.getElementById('status-dot').style.background = 'var(--red)';
+      document.getElementById('status-text').textContent = 'ERROR';
+    }
+  }
+
+  // ── STATS ──────────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const d = await apiFetch('/api/stats');
+      document.getElementById('stat-projects').textContent = d.projects;
+      document.getElementById('stat-approved').textContent = d.approved;
+      document.getElementById('stat-peers').textContent = d.activePeers;
+      document.getElementById('stat-docs').textContent = d.totalDocs;
+    } catch (e) {}
+  }
+
+  // ── EVENTS ─────────────────────────────────────────────────────────
+  async function loadEvents() {
+    // Placeholder — real implementation would call events API
+    const el = document.getElementById('recent-events');
+    el.innerHTML = `
+      <div class="log-entry"><span class="log-ts">${new Date().toISOString().slice(0,19).replace('T',' ')}</span><span class="log-msg">Form Services started</span></div>
+      <div class="log-entry event-join"><span class="log-ts">${new Date().toISOString().slice(0,19).replace('T',' ')}</span><span class="log-msg">Dashboard connected</span></div>
+    `;
+  }
+
+  // ── PROJECTS ───────────────────────────────────────────────────────
+  async function loadProjects() {
+    try {
+      const projects = await apiFetch('/api/projects');
+      const tbody = document.getElementById('projects-tbody');
+      if (!projects.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)">No projects yet. Create one above.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = projects.map(p => `
+        <tr>
+          <td>
+            <div class="proj-name">${esc(p.name)}</div>
+            <div class="proj-id">${esc(p.id)}</div>
+          </td>
+          <td><span class="badge badge-${p.status}">${p.status}</span></td>
+          <td><span class="peers-count ${p.activePeers > 0 ? 'live' : ''}">${p.activePeers}</span></td>
+          <td style="font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)">${new Date(p.created_at).toLocaleDateString()}</td>
+          <td>
+            <div class="actions">
+              ${p.status !== 'approved' ? `<button class="btn btn-approve" onclick="setStatus('${p.id}','approved')">APPROVE</button>` : ''}
+              ${p.status === 'approved' ? `<button class="btn btn-revoke" onclick="setStatus('${p.id}','revoked')">REVOKE</button>` : ''}
+              <button class="btn" onclick="openModule('${p.id}')">MODULE</button>
+              <button class="btn btn-revoke" onclick="deleteProject('${p.id}','${esc(p.name)}')">DELETE</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      document.getElementById('projects-tbody').innerHTML = `<tr><td colspan="5" style="padding:24px;font-family:var(--font-mono);font-size:11px;color:var(--red)">[ERROR: ${e.message}]</td></tr>`;
+    }
+  }
+
+  function toggleNewForm() {
+    const f = document.getElementById('new-proj-form');
+    f.style.display = f.style.display === 'none' ? 'grid' : 'none';
+  }
+
+  async function createProject() {
+    const name = document.getElementById('new-name').value.trim();
+    const desc = document.getElementById('new-desc').value.trim();
+    if (!name) return;
+    try {
+      await apiFetch('/api/projects', { method: 'POST', body: JSON.stringify({ name, description: desc }) });
+      document.getElementById('new-name').value = '';
+      document.getElementById('new-desc').value = '';
+      document.getElementById('new-proj-form').style.display = 'none';
+      await loadProjects();
+      await loadStats();
+    } catch (e) { alert(e.message); }
+  }
+
+  async function setStatus(id, status) {
+    try {
+      await apiFetch(`/api/projects/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+      await loadProjects();
+      await loadStats();
+    } catch (e) { alert(e.message); }
+  }
+
+  async function deleteProject(id, name) {
+    if (!confirm(`Delete project "${name}"? All data will be lost.`)) return;
+    try {
+      await apiFetch(`/api/projects/${id}`, { method: 'DELETE' });
+      await loadProjects();
+      await loadStats();
+    } catch (e) { alert(e.message); }
+  }
+
+  // ── MODULE ──────────────────────────────────────────────────────────
+  async function openModule(projectId) {
+    currentModuleProjectId = projectId;
+    document.getElementById('module-code').textContent = '[LOADING...]';
+    document.getElementById('module-panel').classList.add('open');
+    try {
+      const r = await fetch(`/api/projects/${projectId}/module`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      currentModuleCode = await r.text();
+      // Show snippet version for display
+      const lines = currentModuleCode.split('\n');
+      const snippet = `<script src="http://YOUR_IP:2000/form-module.js"><\/script>\n<!-- Or embed inline: -->\n<script>\n${lines.slice(0,6).join('\n')}\n  // ... (${lines.length} lines total)\n<\/script>`;
+      document.getElementById('module-code').textContent = snippet;
+    } catch (e) {
+      document.getElementById('module-code').textContent = '[ERROR: ' + e.message + ']';
+    }
+  }
+
+  function closeModule() {
+    document.getElementById('module-panel').classList.remove('open');
+  }
+
+  function copyModule() {
+    navigator.clipboard.writeText(currentModuleCode);
+    const btn = event.target;
+    btn.textContent = 'COPIED';
+    setTimeout(() => btn.textContent = 'COPY', 2000);
+  }
+
+  function downloadModule() {
+    const blob = new Blob([currentModuleCode], { type: 'application/javascript' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `form-module-${currentModuleProjectId}.js`;
+    a.click();
+  }
+
+  // ── PEERS ──────────────────────────────────────────────────────────
+  async function loadPeers() {
+    // TODO: Add peers API endpoint
+    document.getElementById('peers-tbody').innerHTML =
+      `<tr><td colspan="4" style="padding:24px;font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)">[NO ACTIVE PEERS]</td></tr>`;
+  }
+
+  // ── NETWORK ────────────────────────────────────────────────────────
+  async function loadNetwork() {
+    try {
+      const d = await apiFetch('/api/status');
+      document.getElementById('net-local').textContent = d.network?.localIP || '—';
+      document.getElementById('net-public').textContent = d.network?.publicIP || '—';
+      document.getElementById('net-http').textContent = d.ports?.http || '2000';
+      document.getElementById('net-peer').textContent = d.ports?.peerjs || '2001';
+      if (d.network?.lastSeen) {
+        document.getElementById('net-lastcheck').textContent =
+          new Date(d.network.lastSeen).toLocaleString();
+      }
+    } catch (e) {}
+  }
+
+  async function refreshIP() {
+    try {
+      const d = await apiFetch('/api/network/ip');
+      document.getElementById('net-public').textContent = d.ip;
+      document.getElementById('ip-alert').classList.add('hidden');
+      if (d.changed) alert(`IP updated: ${d.old} → ${d.ip}\n\nRegenerate and redistribute module files.`);
+    } catch (e) { alert(e.message); }
+  }
+
+  async function checkIPChange() {
+    // Periodic IP check every 5 min
+    setInterval(async () => {
+      try {
+        const d = await apiFetch('/api/network/ip');
+        if (d.changed) document.getElementById('ip-alert').classList.remove('hidden');
+      } catch {}
+    }, 5 * 60 * 1000);
+  }
+
+  // ── LOGS ───────────────────────────────────────────────────────────
+  async function loadLogs() {
+    document.getElementById('log-body').innerHTML =
+      `<div style="padding:24px;font-family:var(--font-mono);font-size:11px;color:var(--text-disabled)">[Check logs/server.log for full event history]</div>`;
+  }
+
+  // ── UTILS ──────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
